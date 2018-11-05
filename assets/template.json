@@ -1,0 +1,12 @@
+{
+  "reminders": [
+    {
+      "id": "unique string",
+      "last_event": "2018-11-03Z00:00:00",
+      "title": "Kepler's flea Meds",
+      "description": "Every 4 weeks we should remember to give Kepler his flea medicine.",
+      "target_span": 2592000,
+      "minimum_span": 2419200
+    }
+  ]
+}
