@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reminder/data/firestore_provider.dart';
 
 void main() => runApp(new MyApp());
 
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Flutter Demo Home Page'),
+      home: FirestoreProvider(child: MyHomePage(title: 'Flutter Demo Home Page'))
     );
   }
 }
@@ -64,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    FirestoreProvider.of(context).loader(context);
     return new Scaffold(
       appBar: new AppBar(
         // Here we take the value from the MyHomePage object that was created by
