@@ -2,11 +2,47 @@
   "reminders": [
     {
       "id": "unique string",
-      "last_event": "2018-11-03Z00:00:00",
       "title": "Kepler's flea Meds",
       "description": "Every 4 weeks we should remember to give Kepler his flea medicine.",
-      "target_span": 2592000,
-      "minimum_span": 2419200
+      "frequency": {
+        "type": "timespan",
+        "target_timespan": 2592000,
+        "minimum_timespan": 2419200,
+        "last_event": "2018-11-05T16:58:38.597780"
+      }
+    },
+    {
+      "id": "unique string2",
+      "title": "Grape's flea Meds",
+      "description": "Every 4 weeks we should remember to give Grapefruit her flea medicine.",
+      "frequency": {
+        "type": "timespan",
+        "target_timespan": 2592000,
+        "minimum_timespan": 2419200,
+        "last_event": "2018-11-05T16:58:38.597780"
+      }
+    },
+    {
+      "id": "unique string3",
+      "title": "Grape's flea Meds",
+      "description": "Every 1 week we should remember to give Grapefruit her flea medicine.",
+      "frequency": {
+        "type": "timespan",
+        "target_timespan": 604000,
+        "minimum_timespan": 2419200,
+        "last_event": "2018-11-05T16:58:38.597780"
+      }
+    },
+    {
+      "id": "unique string4",
+      "title": "Grape's flea Meds",
+      "description": "Every 2 weeks we should remember to give Grapefruit her flea medicine.",
+      "frequency": {
+        "type": "timespan",
+        "target_timespan": 1208000,
+        "minimum_timespan": 2419200,
+        "last_event": "2018-11-05T16:58:38.597780"
+      }
     }
   ]
 }
