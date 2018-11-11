@@ -24,6 +24,7 @@ dependencies:
   cloud_firestore: ^0.8.1+1
   shared_preferences: ^0.4.3
   timeago: ^2.0.9
+  firestore_ui: ^1.0.1
 
 dev_dependencies:
   flutter_test:

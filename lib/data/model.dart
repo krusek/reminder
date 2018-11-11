@@ -1,4 +1,5 @@
 abstract class ReminderBase {
+  String get path;
   String get id;
   String get title;
   String get description;
@@ -9,6 +10,7 @@ abstract class ReminderBase {
 }
 
 class Reminder extends ReminderBase {
+  final String path;
   final String id;
   final String title;
   final String description;
@@ -25,6 +27,7 @@ class Reminder extends ReminderBase {
   }
 
   Reminder({
+    this.path,
     this.id,
     this.title,
     this.description,
@@ -32,6 +35,7 @@ class Reminder extends ReminderBase {
   });
 
   Reminder.fromJson(Map<String, dynamic> json) :
+    this.path = json["path"],
     this.id = json["id"],
     this.title = json["title"],
     this.description = json["description"],
@@ -39,6 +43,7 @@ class Reminder extends ReminderBase {
   
   Map<String,dynamic> toJson() {
     return {
+      "path": this.path,
       "id": this.id,
       "title": this.title,
       "description": this.description,
@@ -53,7 +58,7 @@ abstract class Frequency {
   Frequency();
   Map<String,dynamic> toJson();
   Frequency updated({DateTime lastEvent});
-  static Frequency fromJson(Map<String, dynamic> json) {
+  static Frequency fromJson(dynamic json) {
     if (json["type"] == Timespan.type) return Timespan.fromJson(json);
     return null;
   }
@@ -80,7 +85,7 @@ class Timespan extends Frequency {
 
   Timespan({this.targetTimespan, this.minimumTimespan, this.lastEvent});
 
-  Timespan.fromJson(Map<String, dynamic> json):
+  Timespan.fromJson(dynamic json):
     this.targetTimespan = json["target_timespan"],
     this.minimumTimespan = json["minimum_timespan"],
     this.lastEvent = DateTime.parse(json["last_event"]);

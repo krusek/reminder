@@ -33,8 +33,8 @@ class _SplashState extends State<Splash> {
     List<Future> futures = List();
 
     futures.add(Future.delayed(Duration(seconds: 1)));
-    futures.add(DatabaseProvider.of(context).loader(context));
     futures.add(FirestoreProvider.of(context).loader(context));
+    futures.add(DatabaseProvider.of(context).loader(context));
 
     Future.wait(futures).then((_) {
       if (context == null) { return; }

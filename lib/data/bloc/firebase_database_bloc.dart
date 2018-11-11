@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reminder/data/bloc/database_bloc.dart';
 import 'package:reminder/data/firestore_provider.dart';
@@ -8,7 +9,7 @@ import 'package:uuid/uuid.dart';
 class FirebaseDatabaseBloc extends DatabaseBloc {
   FirestoreBloc _firestore;
   String uuid;
-  String get _remindersPath => this.uuid.length > 0 ? "data/$uuid/reminders/" : "reminders";
+  String get _remindersPath => this.uuid.length > 0 ? "data/$uuid/reminders" : "reminders";
 
   FirebaseDatabaseBloc({this.uuid});
 
@@ -17,6 +18,7 @@ class FirebaseDatabaseBloc extends DatabaseBloc {
     if (_loader == null) {
       _loader = _load(context);
     }
+
     return _loader;
   }
 
@@ -37,17 +39,38 @@ class FirebaseDatabaseBloc extends DatabaseBloc {
   Stream<List<ReminderBase>> get remindersStream => this._firestore.instance.collection(this._remindersPath).snapshots().map(
     (snapshot) {
       return snapshot.documents.map((document) {
-        final json = document.data;
-        json["id"] = document.reference.path;
-        final ReminderBase reminder = Reminder.fromJson(json);
-        return reminder;
+        return reminder(document: document);
       }).toList();
     }
   );
 
+  Stream<QuerySnapshot> get remindersQueryStream {
+    return this._firestore.instance.collection(this._remindersPath).orderBy("due_date").snapshots();
+  }
+
+  ReminderBase reminder({DocumentSnapshot document}) {
+    final json = document.data;
+    json["id"] = document.reference.path;
+    final ReminderBase reminder = Reminder.fromJson(json);
+    return reminder;
+  }
+
   @override
   Future update({ReminderBase reminder}) {
-    return this._firestore.instance.document(reminder.id).setData(reminder.toJson());
+    print("Saving reminder ${reminder.toJson()}");
+    final json = reminder.toJson();
+    json["due_date"] = reminder.frequency.dueDate.toIso8601String();
+    if (reminder.id.startsWith(this._remindersPath)) {
+      print("saving found");
+      print("saving old ${reminder.id}");
+      return this._firestore.instance.document(reminder.id).setData(json);
+    } else {
+      print("saving not found");
+      final reference = this._firestore.instance.collection(this._remindersPath).document(reminder.id);
+      json["id"] = reference.path;
+      print("saving new ${reference.path}");
+      return reference.setData(json);
+    }
   }
 
 }

@@ -1,9 +1,14 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:reminder/data/bloc/firebase_database_bloc.dart';
 import 'package:reminder/data/database_provider.dart';
 import 'package:reminder/data/firestore_provider.dart';
 import 'package:reminder/data/model.dart';
+import 'package:reminder/screens/create_reminder_form.dart';
 import 'package:reminder/screens/splash.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:firestore_ui/animated_firestore_list.dart';
 
 void main() => runApp(new MyApp());
 
@@ -11,25 +16,38 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       routes: {
         "/": (context) => Splash(),
-        "/home/": (context) => MyHomePage()
+        "/home/": (context) => Scaffold(
+                appBar: AppBar(
+                  title: Text("Reminders"),
+                  backgroundColor: Colors.green,
+                  actions: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) {
+                            return CreateReminderDialog();
+                          }
+                        );
+                      },
+                      child: Icon(Icons.add, color: Colors.white)
+                    )
+                  ],
+                ),
+                body:MyHomePage()
+            )
       },
       builder: (context, navigator) {
         return FirestoreProvider(
           child: DatabaseProvider(
-            child: Scaffold(
-              appBar: AppBar(
-                title: Text("Reminders"),
-                backgroundColor: Colors.green,
-              ),
-              body:navigator
-          )
+            child: navigator
           )
         );
       }
@@ -40,16 +58,18 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final database = DatabaseProvider.of(context);
+    final database = DatabaseProvider.of(context) ;
+    if (database is FirebaseDatabaseBloc) {
+      return FirebaseReminderList(database: database);
+    }
     return StreamBuilder<List<ReminderBase>>(
       stream: database.remindersStream,
       builder: (context, snapshot) {
         if (snapshot.data == null) return Text("Loading...");
-        return AnimatedList(
-          initialItemCount: snapshot.data.length,
-          itemBuilder: (context, ix, animation) {
-            final data = snapshot.data[ix];
-            return MaterialButton(
+        return ListView(
+          children: 
+            snapshot.data.map((data) {
+              return MaterialButton(
                 key: Key(data.id),
                 child: ReminderWidget(reminder: data,),
                 onPressed: () {
@@ -57,18 +77,7 @@ class MyHomePage extends StatelessWidget {
                   database.update(reminder: reminder);
                 },
               );
-          },
-          // children: 
-          //   snapshot.data.map((data) {
-          //     return MaterialButton(
-          //       key: Key(data.id),
-          //       child: ReminderWidget(reminder: data,),
-          //       onPressed: () {
-          //         final reminder = data.updated(lastEvent: DateTime.now());
-          //         database.update(reminder: reminder);
-          //       },
-          //     );
-          //   }).toList()
+            }).toList()
         );
       },
     );
@@ -76,6 +85,35 @@ class MyHomePage extends StatelessWidget {
 
   String relative(DateTime date) {
     return timeago.format(date, allowFromNow: true);
+  }
+}
+
+class FirebaseReminderList extends StatelessWidget {
+  const FirebaseReminderList({
+    Key key,
+    @required this.database,
+  }) : super(key: key);
+
+  final FirebaseDatabaseBloc database;
+
+  @override
+  Widget build(BuildContext context) {
+    return FirestoreAnimatedList(
+      query: database.remindersQueryStream,
+      itemBuilder: (context, document, animation, _) {
+        final data = database.reminder(document: document);
+        return Opacity(
+          opacity: animation.value,
+          child: MaterialButton(
+            child: ReminderWidget(reminder: data,),
+            onPressed: () {
+              final reminder = data.updated(lastEvent: DateTime.now());
+              database.update(reminder: reminder);
+            },
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -156,7 +194,12 @@ class FrequencyRemaining extends StatelessWidget {
     Duration days = Duration();
     if (frequency is Timespan) {
       final timespan = frequency as Timespan;
-      days = frequency.lastEvent.difference(DateTime.now()) + Duration(seconds: timespan.targetTimespan);
+      final lastEvent = frequency.lastEvent;
+      if (lastEvent != null)
+        days = lastEvent.difference(DateTime.now()) + Duration(seconds: timespan.targetTimespan);
+      else {
+        days = Duration(seconds: timespan.targetTimespan);
+      }
     }
     int d = days.inDays;
     Color color;
