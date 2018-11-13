@@ -35,12 +35,13 @@
     },
     {
       "id": "unique string4",
-      "title": "Grape's flea Meds",
-      "description": "Every 2 weeks we should remember to give Grapefruit her flea medicine.",
+      "title": "Check SSA",
+      "description": "Every week we should remember to update the sabbath school audio.",
       "frequency": {
-        "type": "timespan",
-        "target_timespan": 1208000,
-        "minimum_timespan": 2419200,
+        "type": "days",
+        "days": [
+          "sunday"
+        ],
         "last_event": "2018-11-05T16:58:38.597780"
       }
     }
