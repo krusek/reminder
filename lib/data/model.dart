@@ -57,6 +57,7 @@ abstract class Frequency {
   Frequency updated({DateTime lastEvent});
   static Frequency fromJson(dynamic json) {
     if (json["type"] == Timespan.type) return Timespan.fromJson(json);
+    if (json["type"] == DaysFrequency.type) return DaysFrequency.fromJson(json);
     return null;
   }
 }
@@ -94,5 +95,57 @@ class Timespan extends Frequency {
       "minimum_timespan": this.minimumTimespan,
       "last_event": this.lastEvent.toIso8601String(),
     };
+  }
+}
+
+enum DayOfWeek {
+  sunday, monday, tuesday, wednesday, thursday, friday, saturday
+}
+
+class DaysFrequency extends Frequency {
+  // TODO: implement dueDate
+  @override
+  DateTime get dueDate {
+    final dates = this.days.map(_dueDateForDay).toList();
+    dates.sort((lhs, rhs) => lhs.compareTo(rhs));
+    return dates.first;
+  }
+
+  final int _firstDayOfWeek = 0;
+  DateTime _dueDateForDay(DayOfWeek day) {
+    final weekday = lastEvent.weekday;
+    final searchday = DayOfWeek.values.indexOf(day);
+
+    int difference = searchday - weekday;
+    if (difference <= 0) difference += 7;
+    return lastEvent.add(Duration(days: difference));
+  }
+
+  final DateTime lastEvent;
+  final List<DayOfWeek> days;
+
+  static String get type => "days";
+
+  DaysFrequency.fromJson(dynamic json) :
+    this.lastEvent = DateTime.parse(json["last_event"]),
+    this.days = json["days"].map((ix) => DayOfWeek.values[ix]).toList().cast<DayOfWeek>();
+
+  @override
+  Map<String, dynamic> toJson() {
+    final days = this.days.map((day) => DayOfWeek.values.indexOf(day)).toList();
+    return {
+      "days": days,
+      "last_event": this.lastEvent
+    };
+  }
+
+  DaysFrequency({
+    this.days,
+    this.lastEvent,
+  });
+
+  @override
+  Frequency updated({DateTime lastEvent}) {
+    return DaysFrequency(days: this.days, lastEvent: lastEvent);
   }
 }
