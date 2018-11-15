@@ -8,13 +8,14 @@ class AbsoluteFrequence extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Duration days = Duration();
+    String data = "";
     if (frequency is Timespan) {
-      final timespan = frequency as Timespan;
-      days = Duration(seconds: timespan.targetTimespan);
+      data = _timespanText(frequency);
+    } else if (frequency is DaysFrequency) {
+      data = _daysText(frequency);
     }
-    int d = days.inDays;
-    return Text("every $d days",
+    
+    return Text(data,
       style: TextStyle(
         color: Colors.black54,
         //fontWeight: FontWeight.w400,
@@ -23,4 +24,21 @@ class AbsoluteFrequence extends StatelessWidget {
     );
   }
 
+  String _daysText(DaysFrequency days) {
+    final value = days.days.map((day) => _dayName(null, day)).reduce((result, element) => result + ", " + element);
+    print("value: $value");
+    return "every $value";
+  }
+
+  String _dayName(BuildContext _, DayOfWeek day) {
+    final names = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    return names[DayOfWeek.values.indexOf(day)];
+  }
+
+  String _timespanText(Timespan timespan) {
+    Duration days = Duration(seconds: timespan.targetTimespan);
+    final d = days.inDays;
+    return "every $d days";
+
+  }
 }
