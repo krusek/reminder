@@ -40,7 +40,7 @@
       "frequency": {
         "type": "days",
         "days": [
-          0
+          1
         ],
         "last_event": "2018-11-05T16:58:38.597780"
       }

@@ -8,16 +8,7 @@ class FrequencyRemaining extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Duration days = Duration();
-    if (frequency is Timespan) {
-      final timespan = frequency as Timespan;
-      final lastEvent = frequency.lastEvent;
-      if (lastEvent != null)
-        days = lastEvent.difference(DateTime.now()) + Duration(seconds: timespan.targetTimespan);
-      else {
-        days = Duration(seconds: timespan.targetTimespan);
-      }
-    }
+    Duration days = frequency.dueDate.difference(DateTime.now());
     int d = days.inDays;
     Color color;
     if (d > 15) {
@@ -29,7 +20,9 @@ class FrequencyRemaining extends StatelessWidget {
     } else {
       color = Colors.red;
     }
-    return Text("due in $d days",
+    String due = "due in $d days";
+    if (d < 0) due = "due ${-1*d} days ago";
+    return Text(due,
       style: TextStyle(
         color: color,
         //fontWeight: FontWeight.w400,
