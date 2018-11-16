@@ -69,7 +69,7 @@ class _CupertinoListItemState extends State<CupertinoListItem> {
         this.onPressed();
       },
       child: Container(
-        color: selected ? CupertinoColors.lightBackgroundGray : Colors.white,
+        color: selected ? CupertinoColors.lightBackgroundGray : null,
         child: this.widget.child,
       ),
     );
