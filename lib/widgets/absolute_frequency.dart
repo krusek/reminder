@@ -18,7 +18,6 @@ class AbsoluteFrequence extends StatelessWidget {
     return Text(data,
       style: TextStyle(
         color: Colors.black54,
-        //fontWeight: FontWeight.w400,
         fontSize: 12.0,
       ),
     );
@@ -26,7 +25,6 @@ class AbsoluteFrequence extends StatelessWidget {
 
   String _daysText(DaysFrequency days) {
     final value = days.days.map((day) => _dayName(null, day)).reduce((result, element) => result + ", " + element);
-    print("value: $value");
     return "every $value";
   }
 

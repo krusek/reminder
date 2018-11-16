@@ -5,6 +5,7 @@ import 'package:reminder/data/firestore_provider.dart';
 import 'package:reminder/data/model.dart';
 import 'package:reminder/screens/create_reminder_form.dart';
 import 'package:reminder/screens/splash.dart';
+import 'package:reminder/widgets/agnostic/agnostic_listitem.dart';
 import 'package:reminder/widgets/reminder_widget.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:firestore_ui/animated_firestore_list.dart';
@@ -68,8 +69,7 @@ class MyHomePage extends StatelessWidget {
         return ListView(
           children: 
             snapshot.data.map((data) {
-              return MaterialButton(
-                key: Key(data.id),
+              return AgnosticListItem(
                 child: ReminderWidget(reminder: data,),
                 onPressed: () {
                   final reminder = data.updated(lastEvent: DateTime.now());
