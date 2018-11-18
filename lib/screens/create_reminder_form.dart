@@ -1,41 +1,38 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:reminder/data/bloc/database_bloc.dart';
 import 'package:reminder/data/database_provider.dart';
 import 'package:reminder/data/model.dart';
+import 'package:reminder/device/platform_provider.dart';
+import 'package:reminder/widgets/day_picker.dart';
+import 'package:reminder/widgets/platform/platform_form_field.dart';
+import 'package:reminder/widgets/platform/platform_tab_bar.dart';
+import 'package:reminder/widgets/safe_area_scroll_view.dart';
 import 'package:uuid/uuid.dart';
 
-class CreateReminderDialog extends SimpleDialog {
-  CreateReminderDialog():
-  super(
-      title: Text("Add Shopping Item"),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: CreateIngredientForm(),
-        ),
-      ]
-    );
-}
-
-class CreateIngredientForm extends StatefulWidget {
-  CreateIngredientForm();
+class CreateReminderForm extends StatefulWidget {
+  CreateReminderForm();
 
   @override
   State<StatefulWidget> createState() {
-    return CreateIngredientFormState();
+    return CreateReminderFormState();
   }
 }
 
-class CreateIngredientFormState extends State<CreateIngredientForm> with TickerProviderStateMixin<CreateIngredientForm> {
+
+class CreateReminderFormState extends State<CreateReminderForm> with TickerProviderStateMixin<CreateReminderForm> {
   final _formKey = GlobalKey<FormState>();
   final String id;
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController timespanController = TextEditingController();
-  final TextEditingController minimumTimespanController = TextEditingController();
+  final TextEditingController nameController = TextEditingController(text: "");
+  final TextEditingController descriptionController = TextEditingController(text: "");
+  final TextEditingController timespanController = TextEditingController(text: "");
+  final TextEditingController minimumTimespanController = TextEditingController(text: "");
   TabController tabBarController;
+  final DayPickerController dayPickerController = DayPickerController([]);
+  FrequencyType frequencyType = FrequencyType.timespan;
+  TargetPlatform platform = TargetPlatform.android;
 
-  CreateIngredientFormState({String id}):
+  CreateReminderFormState({String id}):
     this.id = id ?? Uuid().v1();
 
   @override
@@ -45,53 +42,68 @@ class CreateIngredientFormState extends State<CreateIngredientForm> with TickerP
         if (tabBarController.indexIsChanging) { return; }
         print("changing: ${tabBarController.indexIsChanging}");
         print("tab bar: ${tabBarController.index}");
-        setState(() { });
+        setState(() { 
+          if (tabBarController.index == 0) {
+            frequencyType = FrequencyType.timespan;
+          } else {
+            frequencyType = FrequencyType.days;
+          }
+        });
       });
       super.initState();
     }
 
   @override
   Widget build(BuildContext context) {
+    platform = PlatformProvider.of(context);
     final database = DatabaseProvider.of(context);
-    return Form(
-      key: _formKey,
-      child: AnimatedSize(
-        alignment: Alignment.topCenter,
-        duration: Duration(milliseconds: 200),
-        vsync: this,
-        child: Column(
-          children: [
-            TextFormField(
-              decoration: InputDecoration(labelText: "Name",),
-              controller: nameController,
-              validator: (val) => val.isEmpty ? "Name cannot be empty" : null,
-            ),
-            Container(height: 15.0),
-            TextFormField(
-              maxLines: 3,
-              decoration: InputDecoration(labelText: "Description", border: OutlineInputBorder()),
-              controller: descriptionController,
-              validator: (val) => val.isEmpty ? "Description cannot be empty" : null,
-            ),
-            Container(height: 15.0),
-            TabBar(
-              controller: tabBarController,
-              tabs: <Widget>[
-                Tab(child: Text(
-                  "Timespan",
-                  style: TextStyle(color: Colors.black87)
-                )),
-                Tab(child: Text("Weekly",
-                  style: TextStyle(color: Colors.black87)
-                )),
-              ],
-            ),
-            Container(height: 15.0),
-            tabBarController.index == 0 ? _buildFrequencyInput() : _buildWeekDayInput(),
-            Container(height: 12.0),
-            _buildButtons(database),
-          ]
-        )
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SafeAreaScrollView(
+        child: Form(
+          key: _formKey,
+          child: AnimatedSize(
+            alignment: Alignment.topCenter,
+            duration: Duration(milliseconds: 200),
+            vsync: this,
+            child: Column(
+              children: [
+                PlatformTextFormField(
+                  label: "Name",
+                  controller: nameController,
+                  validator: (val) => val.isNotEmpty == true ? null : "Name cannot be empty",
+                  vsync: this,
+                ),
+                Container(height: 15.0),
+                PlatformTextFormField(
+                  label: "Description",
+                  controller: descriptionController,
+                  validator: (val) => val.isNotEmpty == true ? null : "Description cannot be empty",
+                  vsync: this,
+                ),
+                Container(height: 15.0),
+                PlatformTabBar(
+                  children: {
+                    FrequencyType.timespan: "Timespan", // _segmentedItem("Timespan"),
+                    FrequencyType.days: "Weekly", // _segmentedItem("Weekly"),
+                  },
+                  controller: tabBarController,
+                  selectedValue: frequencyType,
+                  accentColor: Colors.green,
+                ),
+                Container(height: 15.0),
+                AnimatedSize(
+                  vsync: this,
+                  duration: Duration(milliseconds: 200),
+                  alignment: Alignment.topCenter,
+                  child: frequencyType == FrequencyType.timespan ? _buildFrequencyInput() : _buildWeekDayInput(),
+                ),
+                Container(height: 12.0),
+                _buildButtons(database),
+              ]
+            )
+          ),
+        ),
       ),
     );
   }
@@ -99,54 +111,71 @@ class CreateIngredientFormState extends State<CreateIngredientForm> with TickerP
   Widget _buildWeekDayInput() {
     return Column(
       children: <Widget>[
-        Row(
-          children: 
-            DayOfWeek.values.map((day) {
-              final index = DayOfWeek.values.indexOf(day);
-              return Column(
-                children: <Widget>[
-                  Checkbox(
-                    value: false,
-                    onChanged: (_) {},
-                  ),
-                  Text("d $index")
-                ],
-              );
-            }
-          ).toList().cast<Widget>()
+        DayOfWeekFormField(
+          controller: dayPickerController,
         )
       ],
     );
   }
 
   Widget _buildFrequencyInput() {
+    FormFieldValidator<String> integerValidator = (val) {
+      if (int.tryParse(val) == null) return "Must be an integer";
+      return null;
+    };
+    FormFieldValidator<String> minimumValidator = (val) {
+      final minimum = int.tryParse(val);
+      if (minimum == null) return "Must be an integer";
+      final timespan = int.tryParse(timespanController.value.text);
+      if (timespan != null) {
+        if (minimum > timespan) { return "Must be less than target."; }
+      }
+      return null;
+    };
     return Column(
       children: [
-        TextFormField(
-          decoration: InputDecoration(labelText: "Target days", border: OutlineInputBorder()),
+        PlatformTextFormField(
+          label: "Target days",
+          keyboardType: TextInputType.number,
           controller: timespanController,
-          keyboardType: TextInputType.numberWithOptions(),
-          validator: (val) {
-            if (int.tryParse(val) == null) return "Must be an integer";
-            return null;
-          },
+          validator: integerValidator,
+          vsync: this,
         ),
         Container(height: 15.0),
-        TextFormField(
-          decoration: InputDecoration(labelText: "Minimum days", border: OutlineInputBorder()),
+        PlatformTextFormField(
+          label: "Miminum days",
+          keyboardType: TextInputType.number,
           controller: minimumTimespanController,
-          keyboardType: TextInputType.numberWithOptions(),
-          validator: (val) {
-            final minimum = int.tryParse(val);
-            if (minimum == null) return "Must be an integer";
-            final timespan = int.tryParse(timespanController.value.text);
-            if (timespan != null) {
-              if (minimum > timespan) { return "Must be less than target."; }
-            }
-            return null;
-          }
-        ),
+          validator: minimumValidator,
+          vsync: this,
+        )
       ]
+    );
+  }
+
+  Frequency _buildFrequency() {
+    switch (this.frequencyType) { 
+      case FrequencyType.timespan:
+      return _buildTimespan();
+      case FrequencyType.days:
+      return _buildDaysFrequency();
+    }
+    return null;
+  }
+
+  Timespan _buildTimespan() {
+    int days = 60*60*24;
+    return Timespan(
+      lastEvent: DateTime.now(), 
+      targetTimespan: int.parse(timespanController.text) * days, 
+      minimumTimespan: int.parse(minimumTimespanController.text) * days,
+    );
+  }
+
+  DaysFrequency _buildDaysFrequency() {
+    return DaysFrequency(
+      days: dayPickerController.value,
+      lastEvent: DateTime.now()
     );
   }
 
@@ -161,12 +190,7 @@ class CreateIngredientFormState extends State<CreateIngredientForm> with TickerP
             final FormState form = _formKey.currentState;
             if (form.validate()) {
               form.save();
-              int days = 60*60*24;
-              final frequency = Timespan(
-                lastEvent: DateTime.now(),
-                minimumTimespan: int.parse(minimumTimespanController.text) * days,
-                targetTimespan: int.parse(this.timespanController.text) * days
-              );
+              final frequency = _buildFrequency();
               final reminder = Reminder(
                 id: this.id,
                 title: nameController.value.text,
@@ -175,6 +199,7 @@ class CreateIngredientFormState extends State<CreateIngredientForm> with TickerP
               );
               database.update(reminder: reminder);
               Navigator.of(context).pop();
+            } else {
             }
           }
         ),

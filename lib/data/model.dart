@@ -49,6 +49,10 @@ class Reminder extends ReminderBase {
   }
 }
 
+enum FrequencyType {
+  timespan, days
+}
+
 abstract class Frequency {
   DateTime get lastEvent;
   DateTime get dueDate;
@@ -118,7 +122,7 @@ class DaysFrequency extends Frequency {
 
     int difference = searchday - weekday;
     if (difference <= 0) difference += 7;
-    return lastEvent.add(Duration(days: difference));
+    return lastEvent.add(Duration(days: difference + 1));
   }
 
   final DateTime lastEvent;

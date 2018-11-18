@@ -1,19 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:reminder/widgets/platform/platform_widget.dart';
 
-class AgnosticListItem extends StatelessWidget {
+class PlatformListItem extends PlatformWidget {
   final Widget child;
   final Function onPressed;
-  AgnosticListItem({this.child, this.onPressed});
+  PlatformListItem({this.child, this.onPressed});
 
   @override
-  Widget build(BuildContext context) {
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      return CupertinoListItem(child: child, onPressed: onPressed,);
-    } else {
-      return MaterialListItem(child: child, onPressed: onPressed,);
-    }
+  Widget buildAndroidWidget(BuildContext context) {
+    return MaterialListItem(child: child, onPressed: onPressed,);
+  }
+
+  @override
+  Widget buildiOSWidget(BuildContext context) {
+    return CupertinoListItem(child: child, onPressed: onPressed,);
   }
 }
 
