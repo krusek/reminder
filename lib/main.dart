@@ -13,6 +13,12 @@ import 'package:timeago/timeago.dart' as timeago;
 
 void main() => runApp(new MyApp());
 
+/*
+This variable can be used to force the app to visually match a
+particular platform. That is, if you set it to android it will 
+use material design. Whereas, if you set it to iOS it will not
+and will use Cupertino equivalents.
+*/
 final TargetPlatform platform = null; // TargetPlatform.android;
 
 class MyApp extends StatelessWidget {
