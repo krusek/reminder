@@ -33,10 +33,8 @@ class MyApp extends StatelessWidget {
           "/home/": (context) =>  PlatformScaffold(title: "Reminders", child: MyHomePage())
         },
         builder: (context, navigator) {
-          return FirestoreProvider(
-            child: DatabaseProvider(
-              child: navigator
-            )
+          return DatabaseProvider(
+            child: navigator
           );
         }
       ),

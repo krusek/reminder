@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+/// This is used to allow you to override the target platform. If you include 
+/// this at the top of your widget hierarchy with a non-null [platform] then
+/// the app will visually target the provided platform.
 class PlatformProvider extends StatefulWidget {
   final Widget child;
+  /// The platform for the app to visually target. A null value indicates that
+  /// devices actual platform should be targetted.
   final TargetPlatform platform;
   PlatformProvider({this.child, this.platform});
 
@@ -12,7 +17,7 @@ class PlatformProvider extends StatefulWidget {
   }
 
   static TargetPlatform of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(_PlatformProvider) as _PlatformProvider).platform;
+    return (context.inheritFromWidgetOfExactType(_PlatformProvider) as _PlatformProvider)?.platform ?? Theme.of(context).platform;
   }
 }
 
