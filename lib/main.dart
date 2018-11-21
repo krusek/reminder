@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:reminder/data/database_provider.dart';
-import 'package:reminder/data/firestore_provider.dart';
 import 'package:reminder/data/model.dart';
 import 'package:reminder/device/platform_provider.dart';
 import 'package:reminder/screens/create_reminder_form.dart';
