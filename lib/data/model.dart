@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 abstract class ReminderBase {
   String get id;
@@ -107,7 +106,6 @@ enum DayOfWeek {
 }
 
 class DaysFrequency extends Frequency {
-  // TODO: implement dueDate
   @override
   DateTime get dueDate {
     final dates = this.days.map(_dueDateForDay).toList();
@@ -139,7 +137,8 @@ class DaysFrequency extends Frequency {
     final days = this.days.map((day) => DayOfWeek.values.indexOf(day)).toList();
     return {
       "days": days,
-      "last_event": this.lastEvent
+      "last_event": this.lastEvent.toIso8601String(),
+      "type": DaysFrequency.type
     };
   }
 

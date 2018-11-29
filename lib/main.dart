@@ -5,6 +5,7 @@ import 'package:reminder/data/model.dart';
 import 'package:reminder/device/platform_provider.dart';
 import 'package:reminder/screens/create_reminder_form.dart';
 import 'package:reminder/screens/splash.dart';
+import 'package:reminder/widgets/platform/platform_alert.dart';
 import 'package:reminder/widgets/platform/platform_listitem.dart';
 import 'package:reminder/widgets/platform/platform_scaffold.dart';
 import 'package:reminder/widgets/reminder_widget.dart';
@@ -18,7 +19,7 @@ particular platform. That is, if you set it to android it will
 use material design. Whereas, if you set it to iOS it will not
 and will use Cupertino equivalents.
 */
-final TargetPlatform platform = null; // TargetPlatform.android;
+final TargetPlatform platform = TargetPlatform.android;
 
 class MyApp extends StatelessWidget {
   @override
@@ -82,8 +83,20 @@ class MyHomePage extends StatelessWidget {
               return PlatformListItem(
                 child: ReminderWidget(reminder: data,),
                 onPressed: () {
-                  final reminder = data.updated(lastEvent: DateTime.now());
-                  database.update(reminder: reminder);
+                  Widget dialog = PlatformAlert();
+                  final future = showDialog<bool>(
+                    context: context,
+                    builder: (context) {
+                      return dialog;
+                    }
+                  );
+                  future.then((ok) {
+                    print("OK: $ok");
+                    if (ok) {
+                      final reminder = data.updated(lastEvent: DateTime.now());
+                      database.update(reminder: reminder);
+                    }
+                  });
                 },
               );
             }).toList()

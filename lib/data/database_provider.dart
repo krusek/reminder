@@ -31,16 +31,20 @@ class _DatabaseWidget extends InheritedWidget {
 /// fast.
 class DatabaseProvider extends StatefulWidget {
   final Widget child;
+  final DatabaseBloc bloc;
   /// The uuid to be used with firestore to keep data pertaining to
   /// different devices separated. If you want to share data between
   /// two different devices then they should use the same value. It 
   /// does not have to be an actual uuid, but at least a string without
   /// any special characters.
   final String uuid;
-  DatabaseProvider({Key key, this.child, this.uuid}) : super(key: key);
+  DatabaseProvider({Key key, @required this.child, this.uuid, this.bloc}) : 
+    assert(child != null),
+    super(key: key);
   @override
   DatabaseProviderState createState() {
-    return new DatabaseProviderState(uuid: this.uuid);
+    print("creating state: bloc is null ${this.bloc == null}");
+    return new DatabaseProviderState(uuid: this.uuid, bloc: this.bloc);
   }
 
   static DatabaseBloc of(BuildContext context) {
@@ -53,8 +57,8 @@ class DatabaseProviderState extends State<DatabaseProvider> {
   final String uuid;
   final DatabaseBloc bloc;
   
-  DatabaseProviderState({this.uuid}):
-  this.bloc = database == DatabaseType.firestore ? FirebaseDatabaseBloc(uuid: uuid) : MemoryDatabaseBloc();
+  DatabaseProviderState({this.uuid, DatabaseBloc bloc}):
+  this.bloc = bloc ?? (database == DatabaseType.firestore ? FirebaseDatabaseBloc(uuid: uuid) : MemoryDatabaseBloc());
 
   @override
   Widget build(BuildContext context) {
