@@ -34,7 +34,6 @@ class FirebaseDatabaseBloc extends DatabaseBloc {
     return;
   }
 
-  // TODO: implement remindersStream
   @override
   Stream<List<ReminderBase>> get remindersStream => this._firestore.instance.collection(this._remindersPath).snapshots().map(
     (snapshot) {

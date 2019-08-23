@@ -53,7 +53,7 @@ class DatabaseProvider extends StatefulWidget {
 }
 
 class DatabaseProviderState extends State<DatabaseProvider> {
-  static final DatabaseType database = DatabaseType.memory;
+  static final DatabaseType database = DatabaseType.firestore;
   final String uuid;
   final DatabaseBloc bloc;
   

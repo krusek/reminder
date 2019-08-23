@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
         },
         builder: (context, navigator) {
           return DatabaseProvider(
+            uuid: "f5aca9b0-e440-11e8-863c-ad70085",
             child: navigator
           );
         }
